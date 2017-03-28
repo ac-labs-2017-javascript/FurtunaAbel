@@ -1,1 +1,28 @@
-console.log("Hello world");
+//console.log("Hello world");
+var express = require('express');
+var fetch = require('node-fetch');
+var app = express();
+var cheerio = require('cheerio'); 
+
+function processtext(text){
+	var $ = cheerio.load(text);
+	return listItems .map(function(li);
+		return {
+			title: $(li).find(".title").text()
+		};
+
+}
+
+app.get("/hello", function(req,res){
+
+   	fetch("http://www.dopopoco.ro/meniu-individual-timisoara")
+   		.then(function(response){
+   			return response.text();
+   		}).then(function(text){
+   			res.send(processtext(text));
+   		});
+});
+
+app.listen(3200, function(){
+    console.log("running");
+})
