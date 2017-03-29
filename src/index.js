@@ -4,13 +4,14 @@ var fetch = require('node-fetch');
 var app = express();
 var cheerio = require('cheerio'); 
 
-function processtext(text){
+function processText(text){
 	var $ = cheerio.load(text);
-	return listItems .map(function(li);
+    var listItems = Array.from($("#tiles").children("li"));
+	return listItems.map(function(li){
 		return {
 			title: $(li).find(".title").text()
 		};
-
+    });
 }
 
 app.get("/hello", function(req,res){
@@ -19,7 +20,7 @@ app.get("/hello", function(req,res){
    		.then(function(response){
    			return response.text();
    		}).then(function(text){
-   			res.send(processtext(text));
+   			res.send(processText(text));
    		});
 });
 
