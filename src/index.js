@@ -4,7 +4,7 @@ var fetch = require('node-fetch');
 var app = express();
 var cheerio = require('cheerio');
 var sqlite3= require('sqlite3').verbose();
-var db = new sqlite3.Database('abcd');
+var db = new sqlite3.Database('./db');
 
 function processText(text){
 	var $ = cheerio.load(text);
@@ -18,6 +18,7 @@ function processText(text){
 			imagelink: site.concat($(li).find("img").attr("src")),
 			smallpizzaprice: $(prices[0]).text(),
 			bigpizzaprice: $(prices[1]).text(),
+            pizzaplace: 'DopoPoco'
 			//fullprice1: $(li).find(".pret").text().trim().substr(0,8),
 			//fullprice2: $(li).find(".pret").text().substr(8,1000).trim().substr(8).trim()
 		};
@@ -26,20 +27,28 @@ function processText(text){
 
 function storeData(pizza){
 db.serialize(function() {
-  db.run("CREATE TABLE pizzas (id NUMBER, pizzaname TEXT, ingredients TEXT, imagelink TEXT, smallpizzaprice TEXT, bigpizzaprice TEXT ,pizzaplace TEXT");
+  db.run("DROP TABLE pizza");
+  db.run("CREATE TABLE pizza (title TEXT, ingredients TEXT, imagelink TEXT, smallpizzaprice TEXT, bigpizzaprice TEXT ,pizzaplace TEXT)");
 
-  var stmt = db.prepare("INSERT INTO pizzas( pizzaname TEXT, ingredients TEXT, imagelink TEXT, smallpizzaprice TEXT, bigpizzaprice TEXT VALUES (?,?,?,?,?,?))");
+  var stmt = db.prepare("INSERT INTO pizza(title,ingredients,imagelink,smallpizzaprice,bigpizzaprice,pizzaplace) VALUES (?,?,?,?,?,?)");
 
   for (var i = 0; i < pizza.length; i++) {
-      stmt.run(pizza[i].title,pizza[i].ingredients,pizza[i].imagelink, pizza[i].smallpizzaprice, pizza[i].bigpizzaprice,'dopopoco');
+      var p = pizza[i];
+      stmt.run(p.title,p.ingredients,p.imagelink, p.smallpizzaprice, p.bigpizzaprice,p.pizzaplace);
   }
   stmt.finalize();
 
+
+	db.each("SELECT rowid AS id,title,ingredients,imagelink,smallpizzaprice,bigpizzaprice,pizzaplace FROM pizza", function(err, row) {
+        if(err){
+	  	  	throw err;
+	  	  }
+      console.log(row);
+  }); 
 });
-	db.each("SELECT rowid AS id, inf FROM pizzas", function(err, row) {
-      console.log(row.id + ": " + row.info);
-  });
+
 }
+
 
 app.get("/hello", function(req,res){
 
