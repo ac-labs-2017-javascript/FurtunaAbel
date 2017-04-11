@@ -1,0 +1,3 @@
+AbstractScrapper : DopoPoco   TenPizza...
+
+Loader ->storeData
